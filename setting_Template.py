@@ -4,7 +4,7 @@ USER_NAME = ''
 PASSWORD = ''
 
 # executable_path  chromedriver.exe 路径
-EXECUTABLE_PATH = 'C:\Program Files (x86)\Google\Chrome\Application\chromedriver.exe'
+EXECUTABLE_PATH = 'libs\chromedriver.exe'
 
 COOKIE_PATH = 'cookie.txt'
 
