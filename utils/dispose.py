@@ -1,11 +1,12 @@
 import execjs
+from setting import FLOW_PATH
 
 
 class LumDispose:
     def __init__(self, customer_data, libs):
         self.customer = customer_data
         self.libs = libs
-        self.ctx = execjs.compile(self.read_file('utils/flow.js'))
+        self.ctx = execjs.compile(self.read_file(FLOW_PATH))
 
     def read_file(self, path, code='utf-8'):
         with open(path, 'r', encoding=code) as f:

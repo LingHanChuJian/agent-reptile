@@ -108,3 +108,10 @@ def get_yesterday_time2():
     """
     t = date.today() + timedelta(days=-1)
     return t.strftime('%Y_%m_%d')
+
+
+def get_cur_time():
+    """
+    获取当前时间戳  10位
+    """
+    return int(time.time())

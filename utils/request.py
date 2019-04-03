@@ -1,4 +1,8 @@
+import hashlib
 import requests
+
+from setting import MD5
+from utils.timeformat import get_cur_time
 from utils.api import GET_HEADER, POST_HEADER, LUM_CHECK_LOGIN
 
 
@@ -22,6 +26,20 @@ class LumRequest:
         response = self.session.post(url=url, data=data, headers=POST_HEADER, timeout=20)
         response.encoding = 'utf-8'
         return response
+
+    def post_back_data(self, url, data=None):
+        if data:
+            time = get_cur_time()
+            data['sign_time'] = time
+            data['sign'] = self.md5(MD5 % time)
+        response = requests.post(url=url, data=data)
+        response.encoding = 'utf-8'
+        return response
+
+    def md5(self, string):
+        m = hashlib.md5()
+        m.update(string.encode('utf-8'))
+        return m.hexdigest()
 
     def check_login(self):
         response = self.get_lum_data(LUM_CHECK_LOGIN)

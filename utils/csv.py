@@ -4,6 +4,7 @@ import csv
 from setting import *
 from utils.timeformat import get_upper_first2, get_yesterday_time2
 
+
 class FlowCsv:
     def __init__(self):
         self.csv_file = open(self.get_path(), 'w', newline='', encoding='utf-8-sig')

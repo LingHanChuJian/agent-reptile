@@ -30,9 +30,6 @@ class Run:
         self.query_balance_action()
         self.query_flow_action()
 
-    def is_check_cookie(self):
-        self.request.check_login()
-
     def is_file(self):
         return os.path.exists(COOKIE_PATH)
 
@@ -115,13 +112,33 @@ class Run:
             for item in first_bw['zones']:
                 compute_bw[item] = \
                     self.conversion(self.get_value(last_bw['zones'][item]) - self.get_value(first_bw['zones'][item]))
-            return compute_bw
+            self.submit(compute_bw)
         except:
             if IS_FAIL:
                 mail = Mail()
-                mail.send_content_mail(FAIL_MSG2 % '每日流量', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
-                mail.send_content_mail(FAIL_MSG % 'compute_flow', FAIL_TITLE_MSG, MAIL_TEST)
+                mail.send_content_mail(FAIL_MSG2 % 'compute_flow', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
+                # mail.send_content_mail(FAIL_MSG % 'compute_flow', FAIL_TITLE_MSG, MAIL_TEST)
                 mail.close()
+
+    def submit(self, data):
+        for item in data:
+            API_PARAM['zone'] = item
+            API_PARAM['use_flow'] = data[item]
+            # self.request.post_back_data(GEEK_API, API_PARAM)
+            try:
+                response = self.request.post_back_data(QUICKBUY_API, API_PARAM)
+                mail = Mail()
+                if response == 200:
+                    mail.send_content_mail(SUCCESS_MSG, SUCCESS_TITLE_MSG, MAIL_FLOW_SEND)
+                else:
+                    mail.send_content_mail(FAIL_MSG2 % '上传数据', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
+                mail.close()
+            except:
+                if IS_FAIL:
+                    mail = Mail()
+                    mail.send_content_mail(FAIL_MSG2 % 'submit', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
+                    # mail.send_content_mail(FAIL_MSG % 'compute_flow', FAIL_TITLE_MSG, MAIL_TEST)
+                    mail.close()
 
     def get_value(self, value):
         if value and len(value) > 0:
@@ -144,7 +161,7 @@ class Run:
             balance = dispose.dispose_balance(bw, billing, range)
             if balance['calc_balance'] < 50:
                 mail = Mail()
-                mail.send_content_mail(FLOW_MSG % balance['calc_balance'], MAIL_BALANCE_SEND)
+                mail.send_content_mail(FLOW_MSG % balance['calc_balance'], '余额不足', MAIL_BALANCE_SEND)
                 mail.close()
         except:
             if IS_FAIL:
@@ -167,13 +184,13 @@ class Run:
         """
         每天早上八点定时 查询流量
         """
-        schedule.every().day.at("08:00").do(self.compute_flow())
+        schedule.every().day.at("08:00").do(self.compute_flow)
 
     def query_balance_action(self):
         """
         每个小时查询一次 查询余额
         """
-        schedule.every(10).minutes.do(self.query_balance())
+        schedule.every(10).minutes.do(self.query_balance)
 
 
 if __name__ == '__main__':

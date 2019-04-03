@@ -1,12 +1,18 @@
+import os
+
+BASH_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # 网站登陆的账号密码
 USER_NAME = ''
 
 PASSWORD = ''
 
 # executable_path  chromedriver.exe 路径
-EXECUTABLE_PATH = 'libs\chromedriver.exe'
+EXECUTABLE_PATH = os.path.join(BASH_DIR, 'libs\chromedriver.exe')
 
-COOKIE_PATH = 'cookie.txt'
+COOKIE_PATH = os.path.join(BASH_DIR, 'cookie.txt')
+
+FLOW_PATH = os.path.join(BASH_DIR, 'utils/flow.js')
 
 # 邮箱
 MAIL_SERVER = 'smtp.qq.com'
