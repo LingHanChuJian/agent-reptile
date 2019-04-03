@@ -195,3 +195,6 @@ class Run:
 
 if __name__ == '__main__':
     Run()
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
