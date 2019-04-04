@@ -15,7 +15,7 @@ COOKIE_PATH = os.path.join(BASH_DIR, 'cookie.txt')
 FLOW_PATH = os.path.join(BASH_DIR, 'utils/flow.js')
 
 # 邮箱
-MAIL_SERVER = 'smtp.qq.com'
+MAIL_SERVER = ''
 
 MAIL_PORT = 465
 

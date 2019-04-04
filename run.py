@@ -1,5 +1,6 @@
 import os
 import schedule
+import threading
 from ast import literal_eval
 
 from setting import *
@@ -28,8 +29,8 @@ class Run:
         self.request.set_cookie(cookie)
         if not self.request.check_login():
             self.request.set_cookie(self.save_cookie())
-        self.query_balance_action()
-        self.query_flow_action()
+        schedule.every().day.at("09:00").do(self.action, self.compute_flow)
+        schedule.every().hour.do(self.action, self.query_balance)
 
     def is_file(self):
         return os.path.exists(COOKIE_PATH)
@@ -169,17 +170,8 @@ class Run:
         csv.close_csv()
         self.mail.send_file_mail(REPROT_MSG, REPROT_TITLE_MSG, csv.get_path(), MAIL_REPORT_SEND)
 
-    def query_flow_action(self):
-        """
-        每天早上九点定时 查询流量
-        """
-        schedule.every().day.at("09:00").do(self.compute_flow)
-
-    def query_balance_action(self):
-        """
-        每个20分钟 查询余额
-        """
-        schedule.every(20).minutes.do(self.query_balance)
+    def action(self, func):
+        threading.Thread(target=func).start()
 
 
 if __name__ == '__main__':

@@ -25,7 +25,6 @@ def dispose():
     ctx = execjs.compile(content)
     res = ctx.call("billing", customer, bw, billing, date_range2, libs)
     # res = ctx.call("calculate_zone_usage", customer, date_range, bw, libs)
-    print(res)
 
 
 def read_file(path, code='utf-8'):
@@ -37,9 +36,9 @@ def read_file(path, code='utf-8'):
 
 def test():
     mail = Mail()
-    # mail.send_content_mail('你好世界', '测试', MAIL_TEST)
-    path = 'C:\\Users\\27390\\Desktop\\agent-reptile\\export\\Flow_2019_02_01_2019_03_28.csv'
-    mail.send_file_mail('上个月的流量报表', '流量报表', path, MAIL_TEST)
+    mail.send_content_mail('你好世界', '测试', MAIL_TEST)
+    # path = 'C:\\Users\\27390\\Desktop\\agent-reptile\\export\\Flow_2019_02_01_2019_03_28.csv'
+    # mail.send_file_mail('上个月的流量报表', '流量报表', path, MAIL_TEST)
     mail.close()
 
 
