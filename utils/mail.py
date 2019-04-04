@@ -1,4 +1,3 @@
-import os
 import smtplib
 from email.header import Header
 from email.utils import formataddr
