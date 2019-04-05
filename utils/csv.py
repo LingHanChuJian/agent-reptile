@@ -13,7 +13,7 @@ class FlowCsv:
 
     def get_path(self):
         name = FILE_NAME % (get_upper_first2(), get_yesterday_time2())
-        return os.path.join('export', name)
+        return os.path.join(BASH_DIR, 'export', name)
 
     def writer_csv(self, dict_data):
         self.writer.writerow(dict_data)

@@ -18,7 +18,6 @@ from utils.dispose import LumDispose
 class Run:
     def __init__(self):
         self.customer_name = ''
-        self.mail = Mail()
         self.request = LumRequest()
         if not self.is_file():
             cookie = self.save_cookie()
@@ -29,8 +28,8 @@ class Run:
         self.request.set_cookie(cookie)
         if not self.request.check_login():
             self.request.set_cookie(self.save_cookie())
-        schedule.every().day.at("09:00").do(self.action, self.compute_flow)
-        schedule.every().hour.do(self.action, self.query_balance)
+        schedule.every().day.at("09:00").do(self.compute_flow)
+        schedule.every().hour.do(self.query_balance)
 
     def is_file(self):
         return os.path.exists(COOKIE_PATH)
@@ -117,8 +116,11 @@ class Run:
             self.submit(compute_bw)
         except:
             if IS_FAIL:
-                self.mail.send_content_mail(FAIL_MSG2 % 'compute_flow', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
+                mail = Mail()
+                mail.send_content_mail(FAIL_MSG2 % 'compute_flow', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
                 # mail.send_content_mail(FAIL_MSG % 'compute_flow', FAIL_TITLE_MSG, MAIL_TEST)
+                mail.close()
+        return schedule.CancelJob
 
     def submit(self, data):
         for item in data:
@@ -127,14 +129,18 @@ class Run:
             # self.request.post_back_data(GEEK_API, API_PARAM)
             try:
                 response = self.request.post_back_data(QUICKBUY_API, API_PARAM)
-                if response == 200:
-                    self.mail.send_content_mail(SUCCESS_MSG, SUCCESS_TITLE_MSG, MAIL_FLOW_SEND)
+                mail = Mail()
+                if response.status_code == 200:
+                    mail.send_content_mail(SUCCESS_MSG, SUCCESS_TITLE_MSG, MAIL_FLOW_SEND)
                 else:
-                    self.mail.send_content_mail(FAIL_MSG2 % '上传数据', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
+                    mail.send_content_mail(FAIL_MSG2 % '上传数据', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
+                mail.close()
             except:
                 if IS_FAIL:
-                    self.mail.send_content_mail(FAIL_MSG2 % 'submit', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
+                    mail = Mail()
+                    mail.send_content_mail(FAIL_MSG2 % 'submit', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
                     # mail.send_content_mail(FAIL_MSG % 'compute_flow', FAIL_TITLE_MSG, MAIL_TEST)
+                    mail.close()
 
     def get_value(self, value):
         if value and len(value) > 0:
@@ -156,10 +162,14 @@ class Run:
             dispose = LumDispose(customer, libs)
             balance = dispose.dispose_balance(bw, billing, range)
             if balance['calc_balance'] < 50:
-                self.mail.send_content_mail(FLOW_MSG % balance['calc_balance'], '余额不足', MAIL_BALANCE_SEND)
+                mail = Mail()
+                mail.send_content_mail(FLOW_MSG % balance['calc_balance'], '余额不足', MAIL_BALANCE_SEND)
+                mail.close()
         except:
             if IS_FAIL:
-                self.mail.send_content_mail(FAIL_MSG % 'query_balance', FAIL_TITLE_MSG, MAIL_TEST)
+                mail = Mail()
+                mail.send_content_mail(FAIL_MSG % 'query_balance', FAIL_TITLE_MSG, MAIL_TEST)
+                mail.close()
 
     def make_flow_report(self, first_bw):
         if not is_time_early():
@@ -168,7 +178,9 @@ class Run:
         for item in first_bw['zones']:
             csv.writer_csv([item, self.conversion(self.get_value(first_bw['zones'][item]))])
         csv.close_csv()
-        self.mail.send_file_mail(REPROT_MSG, REPROT_TITLE_MSG, csv.get_path(), MAIL_REPORT_SEND)
+        mail = Mail()
+        mail.send_file_mail(REPROT_MSG, REPROT_TITLE_MSG, csv.get_path(), MAIL_REPORT_SEND)
+        mail.close()
 
     def action(self, func):
         threading.Thread(target=func).start()
