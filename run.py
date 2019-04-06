@@ -123,24 +123,27 @@ class Run:
         return schedule.CancelJob
 
     def submit(self, data):
+        bw, bw_success, bw_fail, num_success, num_fail = '%s : %s/g, ', '', '', 0, 0
         for item in data:
             API_PARAM['zone'] = item
             API_PARAM['use_flow'] = data[item]
             # self.request.post_back_data(GEEK_API, API_PARAM)
             try:
                 response = self.request.post_back_data(QUICKBUY_API, API_PARAM)
-                mail = Mail()
                 if response.status_code == 200:
-                    mail.send_content_mail(SUCCESS_MSG, SUCCESS_TITLE_MSG, MAIL_FLOW_SEND)
+                    bw_success += bw % (item, data[item])
+                    num_success += 1
                 else:
-                    mail.send_content_mail(FAIL_MSG2 % '上传数据', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
-                mail.close()
+                    bw_fail += bw % (item, data[item])
+                    num_fail += 1
             except:
-                if IS_FAIL:
-                    mail = Mail()
-                    mail.send_content_mail(FAIL_MSG2 % 'submit', FAIL_TITLE_MSG, MAIL_FLOW_SEND)
-                    # mail.send_content_mail(FAIL_MSG % 'compute_flow', FAIL_TITLE_MSG, MAIL_TEST)
-                    mail.close()
+                bw_fail += bw % (item, data[item])
+                num_fail += 1
+                continue
+        mail = Mail()
+        mail.send_content_mail(SUCCESS_MSG % (bw_success, num_success, bw_fail, num_fail),
+                               SUCCESS_TITLE_MSG, MAIL_FLOW_SEND)
+        mail.close()
 
     def get_value(self, value):
         if value and len(value) > 0:
